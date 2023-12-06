@@ -1,21 +1,9 @@
 import { PgUser } from '@/infra/postgres/entities'
 import { PgUserAccountRepository } from '@/infra/postgres/repos'
+import { makeFakeDb } from '@/tests/infra/postgres/mocks'
 
-import { IBackup, newDb, IMemoryDb } from 'pg-mem'
-import { getRepository, Repository, getConnection, Connection } from 'typeorm'
-
-const makeFakeDb = async (entities?: any[]): Promise<IMemoryDb> => {
-  const db = newDb({
-    autoCreateForeignKeyIndices: true
-  })
-  const got: Connection = await db.adapters.createTypeormConnection({
-    type: 'postgres',
-    entities: entities ?? ['src/infra/postgres/entities/index.ts']
-  })
-  await got.synchronize()
-
-  return db
-}
+import { IBackup } from 'pg-mem'
+import { getRepository, Repository, getConnection } from 'typeorm'
 
 describe('PgUserAccountRepository', () => {
   describe('load', () => {
@@ -47,8 +35,6 @@ describe('PgUserAccountRepository', () => {
     })
 
     it('should return undefined if email does not exists', async () => {
-      sut = new PgUserAccountRepository()
-
       const account = await sut.load({ email: 'new_email' })
 
       expect(account).toBe(undefined)
