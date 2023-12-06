@@ -1,7 +1,7 @@
 import { LoadUserAccountRepository } from '@/data/contracts/repos'
 
-import { newDb } from 'pg-mem'
-import { Entity, PrimaryGeneratedColumn, Column, getRepository } from 'typeorm'
+import { IBackup, newDb } from 'pg-mem'
+import { Entity, PrimaryGeneratedColumn, Column, getRepository, Repository, getConnection } from 'typeorm'
 
 class PgUserAccountRepository implements LoadUserAccountRepository {
   async load (params: LoadUserAccountRepository.Params): Promise<LoadUserAccountRepository.Result> {
@@ -34,7 +34,11 @@ class PgUser {
 
 describe('PgUserAccountRepository', () => {
   describe('load', () => {
-    it('should return an account if email exists', async () => {
+    let sut: PgUserAccountRepository
+    let pgUserRepo: Repository<PgUser>
+    let backup: IBackup
+
+    beforeAll(async () => {
       const db = newDb({
         autoCreateForeignKeyIndices: true
       })
@@ -43,29 +47,30 @@ describe('PgUserAccountRepository', () => {
         type: 'postgres',
         entities: [PgUser]
       })
-
       await got.synchronize()
-      const pgUserRepo = got.getRepository(PgUser)
+      backup = db.backup()
+      pgUserRepo = got.getRepository(PgUser)
+    })
+
+    afterAll(async () => {
+      await getConnection().close()
+    })
+
+    beforeEach(() => {
+      backup.restore()
+      sut = new PgUserAccountRepository()
+    })
+
+    it('should return an account if email exists', async () => {
       await pgUserRepo.save({ email: 'existing_email' })
-      const sut = new PgUserAccountRepository()
 
       const account = await sut.load({ email: 'existing_email' })
 
       expect(account).toEqual({ id: '1' })
-      await got.close()
     })
+
     it('should return undefined if email does not exists', async () => {
-      const db = newDb({
-        autoCreateForeignKeyIndices: true
-      })
-
-      const got = await db.adapters.createTypeormConnection({
-        type: 'postgres',
-        entities: [PgUser]
-      })
-
-      await got.synchronize()
-      const sut = new PgUserAccountRepository()
+      sut = new PgUserAccountRepository()
 
       const account = await sut.load({ email: 'new_email' })
 
