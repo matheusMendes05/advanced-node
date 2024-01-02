@@ -20,7 +20,7 @@ describe('FacebookLoginController', () => {
   })
 
   it('should return 400 if token is empty', async () => {
-    const httpResponse = await sut.handle({ token: '' })
+    const httpResponse = await sut.handle({ token: '' as any })
 
     expect(httpResponse).toEqual({
       statusCode: 400,
@@ -29,7 +29,7 @@ describe('FacebookLoginController', () => {
   })
 
   it('should return 400 if token is Null', async () => {
-    const httpResponse = await sut.handle({ token: '' })
+    const httpResponse = await sut.handle({ token: '' as any })
 
     expect(httpResponse).toEqual({
       statusCode: 400,
@@ -38,7 +38,7 @@ describe('FacebookLoginController', () => {
   })
 
   it('should return 400 if token is undefined', async () => {
-    const httpResponse = await sut.handle({ token: '' })
+    const httpResponse = await sut.handle({ token: '' as any })
 
     expect(httpResponse).toEqual({
       statusCode: 400,
