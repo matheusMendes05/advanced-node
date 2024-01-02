@@ -16,7 +16,8 @@
         "@typescript-eslint/no-namespace": "off",
         "@typescript-eslint/consistent-type-imports": "off",
         "@typescript-eslint/return-await": "off",
-        "@typescript-eslint/unbound-method": "off"
+        "@typescript-eslint/unbound-method": "off",
+        "@typescript-eslint/restrict-template-expressions": "off"
       }
     }
   ]
